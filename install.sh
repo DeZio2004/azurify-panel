@@ -152,8 +152,13 @@ if [[ "$first_install" == true ]]; then
     echo "  Username  : ${panel_user}"
     echo "  Password  : ${panel_pass}"
     echo
+    echo "  Client portal (give clients this link): http://${server_ip}:${panel_port}/clientportal/"
+    echo
     warn "Save these now. Open the panel port in your firewall (ufw allow ${panel_port}/tcp)."
+    warn "Use a domain + SSL certificate (x-ui menu) so clients sign in over https."
 else
-    [[ "$was_running" == true ]] && info "Panel updated and restarted."
+    if [[ "$was_running" == true ]]; then info "Panel updated and restarted."; fi
 fi
 echo "  Manage with: x-ui"
+echo "  App download links shown to clients can be changed in /etc/default/x-ui:"
+echo "    PORTAL_NETMOD_WINDOWS_URL, PORTAL_NETMOD_ANDROID_URL, PORTAL_NPV_IOS_URL, PORTAL_NPV_ANDROID_URL"

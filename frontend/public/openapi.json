@@ -11229,6 +11229,104 @@
         }
       }
     },
+    "/panel/api/clients/portal/{email}": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Return the client's client-portal login (username is the email, plus the generated password and the portal path). The password is created on first use. Hand these to the client; they sign in at /clientportal/ to see their usage, links and QR codes.",
+        "operationId": "get_panel_api_clients_portal_email",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "description": "Client email (unique identifier).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "obj": {
+                    "username": "user1",
+                    "password": "nb9Wzz5hx8EU",
+                    "path": "/clientportal/"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/clients/portalReset/{email}": {
+      "post": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Replace the client's client-portal password with a new random one and return the new login. The old password stops working immediately.",
+        "operationId": "post_panel_api_clients_portalReset_email",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "description": "Client email (unique identifier).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                },
+                "example": {
+                  "success": true,
+                  "obj": {
+                    "username": "user1",
+                    "password": "Q7xMk2pRtv9s",
+                    "path": "/clientportal/"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/panel/api/nodes/list": {
       "get": {
         "tags": [

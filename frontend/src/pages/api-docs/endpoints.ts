@@ -1690,6 +1690,28 @@ export const sections: readonly Section[] = [
         response:
           '{\n  "success": true,\n  "obj": [\n    "vless://uuid@host:443?...#user1"\n  ]\n}',
       },
+      {
+        method: 'GET',
+        path: '/panel/api/clients/portal/:email',
+        summary:
+          "Return the client's client-portal login (username is the email, plus the generated password and the portal path). The password is created on first use. Hand these to the client; they sign in at /clientportal/ to see their usage, links and QR codes.",
+        params: [
+          { name: 'email', in: 'path', type: 'string', desc: 'Client email (unique identifier).' },
+        ],
+        response:
+          '{\n  "success": true,\n  "obj": {\n    "username": "user1",\n    "password": "nb9Wzz5hx8EU",\n    "path": "/clientportal/"\n  }\n}',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/clients/portalReset/:email',
+        summary:
+          "Replace the client's client-portal password with a new random one and return the new login. The old password stops working immediately.",
+        params: [
+          { name: 'email', in: 'path', type: 'string', desc: 'Client email (unique identifier).' },
+        ],
+        response:
+          '{\n  "success": true,\n  "obj": {\n    "username": "user1",\n    "password": "Q7xMk2pRtv9s",\n    "path": "/clientportal/"\n  }\n}',
+      },
     ],
   },
 

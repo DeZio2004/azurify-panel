@@ -18,6 +18,7 @@ import (
 
 func notifyClientsChanged() {
 	websocket.BroadcastInvalidate(websocket.MessageTypeClients)
+	syncPortalLogins()
 }
 
 func parseInboundIdsQuery(raw string) []int {
@@ -41,6 +42,7 @@ type ClientController struct {
 	xrayService    service.XrayService
 	settingService service.SettingService
 	happGenerator  service.HappLinkGenerator
+	portalService  service.PortalService
 }
 
 func NewClientController(g *gin.RouterGroup) *ClientController {
@@ -60,6 +62,8 @@ func (a *ClientController) initRouter(g *gin.RouterGroup) {
 	g.GET("/subLinks/:subId", a.getSubLinks)
 	g.GET("/links/:email", a.getClientLinks)
 	g.POST("/happLink/:id", a.generateHappLink)
+	g.GET("/portal/:email", a.portalLogin)
+	g.POST("/portalReset/:email", a.portalReset)
 
 	g.POST("/add", a.create)
 	g.POST("/renewalPreview", a.renewalPreview)
@@ -679,6 +683,30 @@ func (a *ClientController) getSubLinks(c *gin.Context) {
 		return
 	}
 	jsonObj(c, links, nil)
+}
+
+// portalLogin returns the client's portal username and password, creating the
+// password on first use, for the admin to hand to the client.
+func (a *ClientController) portalLogin(c *gin.Context) {
+	c.Header("Cache-Control", "no-store")
+	email := c.Param("email")
+	password, err := a.portalService.EnsurePassword(email)
+	if err != nil {
+		jsonMsg(c, I18nWeb(c, "somethingWentWrong"), err)
+		return
+	}
+	jsonObj(c, gin.H{"username": email, "password": password, "path": portalPath + "/"}, nil)
+}
+
+func (a *ClientController) portalReset(c *gin.Context) {
+	c.Header("Cache-Control", "no-store")
+	email := c.Param("email")
+	password, err := a.portalService.ResetPassword(email)
+	if err != nil {
+		jsonMsg(c, I18nWeb(c, "somethingWentWrong"), err)
+		return
+	}
+	jsonObj(c, gin.H{"username": email, "password": password, "path": portalPath + "/"}, nil)
 }
 
 func (a *ClientController) getClientLinks(c *gin.Context) {

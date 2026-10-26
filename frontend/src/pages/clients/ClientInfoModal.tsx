@@ -74,6 +74,12 @@ interface ClientInfoModalProps {
 
 const NO_HOSTS: HostRecord[] = [];
 
+interface PortalLogin {
+  username: string;
+  password: string;
+  path: string;
+}
+
 interface ApiMsg<T = unknown> {
   success?: boolean;
   obj?: T;
@@ -165,6 +171,42 @@ export default function ClientInfoModal({
       cancelled = true;
     };
   }, [open, client?.subId]);
+
+  const [portalLogin, setPortalLogin] = useState<PortalLogin | null>(null);
+  const portalEmail = open ? (client?.email ?? '') : '';
+  const shownPortalLogin = portalLogin && portalLogin.username === portalEmail ? portalLogin : null;
+  useEffect(() => {
+    if (!portalEmail) return undefined;
+    let cancelled = false;
+    (async () => {
+      const msg = (await HttpUtil.get(
+        `/panel/api/clients/portal/${encodeURIComponent(portalEmail)}`,
+      )) as ApiMsg<PortalLogin>;
+      if (cancelled) return;
+      setPortalLogin(msg?.success && msg.obj ? msg.obj : null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [portalEmail]);
+
+  function resetPortalPassword() {
+    if (!client?.email) return;
+    const email = client.email;
+    Modal.confirm({
+      title: t('pages.clients.portal.resetTitle', 'Generate a new portal password?'),
+      content: t(
+        'pages.clients.portal.resetBody',
+        'The old password stops working and any signed-in session keeps working until it expires.',
+      ),
+      onOk: async () => {
+        const msg = (await HttpUtil.post(
+          `/panel/api/clients/portalReset/${encodeURIComponent(email)}`,
+        )) as ApiMsg<PortalLogin>;
+        if (msg?.success && msg.obj) setPortalLogin(msg.obj);
+      },
+    });
+  }
 
   const traffic = client?.traffic || null;
   const totalBytes = client?.totalGB || 0;
@@ -570,6 +612,43 @@ export default function ClientInfoModal({
                 </tr>
               </tbody>
             </table>
+
+            {shownPortalLogin && (
+              <>
+                <Divider>{t('pages.clients.portal.title', 'Client portal')}</Divider>
+                {[
+                  [
+                    t('pages.clients.portal.link', 'Link'),
+                    `${window.location.protocol}//${window.location.host}${shownPortalLogin.path}`,
+                  ],
+                  [t('pages.clients.portal.username', 'Username'), shownPortalLogin.username],
+                  [t('pages.clients.portal.password', 'Password'), shownPortalLogin.password],
+                ].map(([label, value]) => (
+                  <div className="link-row" key={label}>
+                    <Tag color="cyan" className="link-row-tag">
+                      {label}
+                    </Tag>
+                    <span className="link-row-text">{value}</span>
+                    <Tooltip title={t('copy')}>
+                      <Button
+                        size="small"
+                        type="text"
+                        icon={<CopyOutlined aria-hidden />}
+                        aria-label={t('copy')}
+                        onClick={() => void copyValue(value)}
+                      />
+                    </Tooltip>
+                  </div>
+                ))}
+                <Button
+                  size="small"
+                  icon={<ReloadOutlined aria-hidden />}
+                  onClick={resetPortalPassword}
+                >
+                  {t('pages.clients.portal.reset', 'New password')}
+                </Button>
+              </>
+            )}
 
             {showSubscription && subLink && (
               <>

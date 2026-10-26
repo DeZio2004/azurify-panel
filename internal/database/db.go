@@ -73,6 +73,7 @@ func allModels() []any {
 		&model.Node{},
 		&model.ApiToken{},
 		&model.ClientRecord{},
+		&model.PortalCredential{},
 		&model.ClientInbound{},
 		&model.ClientHwid{},
 		&model.ClientExternalLink{},

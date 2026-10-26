@@ -1170,6 +1170,18 @@ type InboundFallback struct {
 
 func (InboundFallback) TableName() string { return "inbound_fallbacks" }
 
+// PortalCredential is the password a client uses, with their email as the
+// username, to sign in to the client portal (/clientportal). It is kept apart
+// from the client row so it never reaches Xray or the share links.
+type PortalCredential struct {
+	Email     string `json:"email" gorm:"primaryKey"`
+	Password  string `json:"password"`
+	CreatedAt int64  `json:"createdAt" gorm:"autoCreateTime:milli"`
+	UpdatedAt int64  `json:"updatedAt" gorm:"autoUpdateTime:milli"`
+}
+
+func (PortalCredential) TableName() string { return "portal_credentials" }
+
 type Host struct {
 	Id                int      `json:"id" form:"id" gorm:"primaryKey;autoIncrement" example:"1"`
 	GroupId           string   `json:"groupId" form:"groupId" gorm:"column:group_id;index"`

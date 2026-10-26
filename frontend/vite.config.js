@@ -236,6 +236,7 @@ export default defineConfig({
         index: path.resolve(import.meta.dirname, 'index.html'),
         login: path.resolve(import.meta.dirname, 'login.html'),
         subpage: path.resolve(import.meta.dirname, 'subpage.html'),
+        portal: path.resolve(import.meta.dirname, 'portal.html'),
       },
       output: {
         manualChunks(id) {
