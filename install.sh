@@ -2,14 +2,14 @@
 # AZURIFY panel installer for Ubuntu/Debian (amd64, arm64).
 # Builds the panel from source on this machine, so no release archive is needed.
 #
-#   bash <(curl -Ls https://raw.githubusercontent.com/YOUR_GITHUB_USER/azurify-panel/main/install.sh)
+#   bash <(curl -Ls https://raw.githubusercontent.com/DeZio2004/azurify-panel/main/install.sh)
 #
 # Re-running it updates the panel in place; the database in /etc/x-ui is kept.
 # Options (environment): AZURIFY_REPO, AZURIFY_BRANCH, XUI_PORT.
 
 set -euo pipefail
 
-AZURIFY_REPO="${AZURIFY_REPO:-YOUR_GITHUB_USER/azurify-panel}"
+AZURIFY_REPO="${AZURIFY_REPO:-DeZio2004/azurify-panel}"
 AZURIFY_BRANCH="${AZURIFY_BRANCH:-main}"
 XRAY_VERSION="${XRAY_VERSION:-v26.10.21}"
 
@@ -30,7 +30,7 @@ die() { echo -e "${red}[azurify] $*${plain}" >&2; exit 1; }
 
 [[ $EUID -eq 0 ]] || die "Run as root (sudo -i)."
 command -v apt-get > /dev/null || die "This installer supports Ubuntu/Debian only."
-[[ "$AZURIFY_REPO" != YOUR_GITHUB_USER/* ]] || die "Set AZURIFY_REPO (e.g. AZURIFY_REPO=you/azurify-panel) or edit this script."
+[[ "$AZURIFY_REPO" != DeZio2004/* ]] || die "Set AZURIFY_REPO (e.g. AZURIFY_REPO=you/azurify-panel) or edit this script."
 
 case "$(uname -m)" in
     x86_64 | amd64)
