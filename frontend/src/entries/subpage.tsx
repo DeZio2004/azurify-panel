@@ -1,7 +1,9 @@
 import { createRoot } from 'react-dom/client';
 import { message } from 'antd';
 import 'antd/dist/reset.css';
+import '@/styles/azurify-theme.css';
 
+import { BrandBadge } from '@/components/brand/BrandBadge';
 import { readyI18n } from '@/i18n/react';
 import { AntdRootConfig } from '@/i18n/AntdRootConfig';
 import { ThemeProvider } from '@/hooks/useTheme';
@@ -21,6 +23,7 @@ readyI18n('subscription').then(() => {
         <ThemeProvider>
           <QueryProvider>
             <SubPage />
+            <BrandBadge />
           </QueryProvider>
         </ThemeProvider>
       </AntdRootConfig>,

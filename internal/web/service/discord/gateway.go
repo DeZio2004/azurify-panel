@@ -274,8 +274,8 @@ func (g *GatewayClient) connectAndListen(ctx context.Context) error {
 		Intents: discordIntents,
 		Properties: IdentifyProperties{
 			OS:      "linux",
-			Browser: "3x-ui",
-			Device:  "3x-ui",
+			Browser: "azurify",
+			Device:  "azurify",
 		},
 	}
 	dataBytes, _ := json.Marshal(identData)
@@ -484,7 +484,7 @@ func (g *GatewayClient) sendStatus(ctx context.Context) {
 
 	hostname, _ := os.Hostname()
 	if hostname == "" {
-		hostname = "3x-ui"
+		hostname = "azurify"
 	}
 
 	var onlines []string
@@ -540,7 +540,7 @@ func (g *GatewayClient) sendBackup(ctx context.Context) {
 
 	filename := g.serverService.BackupFilename("")
 	if filename == "" {
-		filename = "x-ui.db"
+		filename = "azurify-ui.db"
 	}
 
 	files := []FileAttachment{

@@ -125,11 +125,12 @@ func setupSponsorServer(t *testing.T, body string) *atomic.Int32 {
 	}))
 	t.Cleanup(srv.Close)
 
-	prevURL, prevBase, prevNow := sponsorsURL, sponsorLogoBase, sponsorNow
+	prevURL, prevBase, prevNow, prevEnabled := sponsorsURL, sponsorLogoBase, sponsorNow, sponsorsEnabled
 	sponsorsURL, sponsorLogoBase = srv.URL+"/sponsors.json", srv.URL+"/media/"
+	sponsorsEnabled = true
 	resetSponsorCache()
 	t.Cleanup(func() {
-		sponsorsURL, sponsorLogoBase, sponsorNow = prevURL, prevBase, prevNow
+		sponsorsURL, sponsorLogoBase, sponsorNow, sponsorsEnabled = prevURL, prevBase, prevNow, prevEnabled
 		failSponsorList.Store(false)
 		failSponsorLogos.Store(false)
 		resetSponsorCache()
@@ -279,10 +280,10 @@ func TestGetSponsorsDebugReadsLocalCheckout(t *testing.T) {
 	if err := os.MkdirAll(local, 0o700); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Mkdir(filepath.Join(root, "3x-ui"), 0o700); err != nil {
+	if err := os.Mkdir(filepath.Join(root, "azurify"), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	t.Chdir(filepath.Join(root, "3x-ui"))
+	t.Chdir(filepath.Join(root, "azurify"))
 	write := func(id string) {
 		t.Helper()
 		body := `{"sponsors":[{"id":"` + id + `","slots":["page"],"until":"2099-01-01T00:00:00Z","link":"https://a.example/"}]}`

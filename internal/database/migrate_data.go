@@ -21,7 +21,7 @@ import (
 )
 
 // migrationModels is the FK-aware order in which tables are created and copied
-// during `x-ui migrate-db --dsn` (SQLite → PostgreSQL data migration) and in
+// during `azurify-ui migrate-db --dsn` (SQLite → PostgreSQL data migration) and in
 // related tests.
 //
 // Important: When adding a new top-level model (like OutboundSubscription),
@@ -151,7 +151,7 @@ func MigrateData(srcPath, dstDSN string) error {
 	}
 
 	log.Printf("Migration complete: %d rows across %d tables.", totalRows, len(migrationModels()))
-	log.Println("Set XUI_DB_TYPE=postgres and XUI_DB_DSN=... in /etc/default/x-ui, then restart x-ui.")
+	log.Println("Set XUI_DB_TYPE=postgres and XUI_DB_DSN=... in /etc/default/azurify-ui, then restart azurify-ui.")
 	return nil
 }
 
@@ -339,7 +339,7 @@ func PrepareSQLiteForMigration(dbPath string) error {
 
 	for _, table := range []string{"users", "settings", "inbounds"} {
 		if !sqliteTableExists(sqlDB, table) {
-			return fmt.Errorf("not a 3x-ui panel database: required table %q is missing", table)
+			return fmt.Errorf("not a azurify panel database: required table %q is missing", table)
 		}
 	}
 	for _, m := range migrationModels() {

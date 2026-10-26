@@ -41,7 +41,7 @@ type PanelUpdateInfo struct {
 }
 
 const (
-	panelUpdaterURL      = "https://raw.githubusercontent.com/MHSanaei/3x-ui/main/update.sh"
+	panelUpdaterURL      = "https://raw.githubusercontent.com/mhsanaei/3x-ui/main/update.sh"
 	maxPanelUpdaterBytes = 2 << 20
 	// devReleaseTag is the fixed-tag rolling pre-release the CI force-moves to the
 	// newest main commit; the dev update channel installs from it.
@@ -126,10 +126,21 @@ func (s *PanelService) RestartPanel(delay time.Duration) error {
 	return nil
 }
 
-// GetUpdateInfo checks GitHub for the latest 3x-ui release. When the dev channel
+// GetUpdateInfo checks GitHub for the latest azurify release. When the dev channel
 // is enabled on a dev build it compares commits against the rolling dev release;
 // otherwise it compares versions against the latest stable tag.
 func (s *PanelService) GetUpdateInfo() (*PanelUpdateInfo, error) {
+	// AZURIFY updates come from the azurify-ui menu on the server (it re-runs the
+	// installer); the original project's release feed would install a different panel.
+	if !webUpdateEnabled {
+		current := config.GetBaseVersion()
+		return &PanelUpdateInfo{
+			Channel:         "stable",
+			CurrentVersion:  current,
+			LatestVersion:   current,
+			UpdateAvailable: false,
+		}, nil
+	}
 	if devChannelActive() {
 		return getDevUpdateInfo()
 	}
@@ -213,7 +224,14 @@ func (s *PanelService) GetUpdateStatus() *PanelUpdateStatus {
 	return &status
 }
 
+// webUpdateEnabled gates the in-panel updater, which downloads the original
+// project's update script and releases. It stays off for AZURIFY builds.
+const webUpdateEnabled = false
+
 func (s *PanelService) startUpdate(useDev bool) (int64, error) {
+	if !webUpdateEnabled {
+		return 0, fmt.Errorf("update from the server instead: run azurify-ui and choose Update")
+	}
 	runID := time.Now().UnixNano()
 	if !acquireUpdateSlot(runID) {
 		return 0, fmt.Errorf("a panel update is already in progress")
@@ -252,7 +270,7 @@ func (s *PanelService) startUpdate(useDev bool) (int64, error) {
 	proxyEnv := updateProxyEnvVars()
 
 	if systemdRun, err := exec.LookPath("systemd-run"); err == nil {
-		unitName := fmt.Sprintf("x-ui-web-update-%d", time.Now().Unix())
+		unitName := fmt.Sprintf("azurify-ui-web-update-%d", time.Now().Unix())
 		args := []string{
 			"--unit", unitName,
 			"--setenv", "XUI_MAIN_FOLDER=" + mainFolder,
@@ -387,7 +405,7 @@ func downloadPanelUpdater() (string, error) {
 		return "", fmt.Errorf("download panel updater: unexpected HTTP %d", resp.StatusCode)
 	}
 
-	file, err := os.CreateTemp("", "3x-ui-update-*.sh")
+	file, err := os.CreateTemp("", "azurify-update-*.sh")
 	if err != nil {
 		return "", err
 	}
@@ -431,9 +449,9 @@ func fetchLatestPanelVersion() (string, error) {
 // fetchPanelRelease fetches a release from GitHub. An empty tag resolves the
 // latest stable release; a non-empty tag (e.g. dev-latest) resolves that tag.
 func fetchPanelRelease(tag string) (*service.Release, error) {
-	url := "https://api.github.com/repos/MHSanaei/3x-ui/releases/latest"
+	url := "https://api.github.com/repos/mhsanaei/3x-ui/releases/latest"
 	if tag != "" {
-		url = "https://api.github.com/repos/MHSanaei/3x-ui/releases/tags/" + tag
+		url = "https://api.github.com/repos/mhsanaei/3x-ui/releases/tags/" + tag
 	}
 	client := (&service.SettingService{}).NewProxiedHTTPClient(10 * time.Second)
 	req, reqErr := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
@@ -512,7 +530,7 @@ func resolveUpdateFolders() (string, string) {
 		}
 	}
 	if mainFolder == "" {
-		mainFolder = "/usr/local/x-ui"
+		mainFolder = "/usr/local/azurify-ui"
 	}
 
 	serviceFolder := os.Getenv("XUI_SERVICE")

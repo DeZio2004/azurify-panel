@@ -325,8 +325,16 @@ export default function AppSidebar() {
       >
         <div className="sider-brand">
           <div className="brand-block">
-            <AzurifyLogo size={28} className="brand-logo" />
-            {!railCollapsed && <span className="brand-text">AZURIFY</span>}
+            <a
+              className="brand-link"
+              href="https://azurify.win"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="AZURIFY website"
+            >
+              <AzurifyLogo size={28} className="brand-logo" />
+              {!railCollapsed && <span className="brand-text">AZURIFY</span>}
+            </a>
           </div>
           {!railCollapsed && (
             <div className="brand-actions">

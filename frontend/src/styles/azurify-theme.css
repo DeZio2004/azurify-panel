@@ -1,0 +1,508 @@
+/*
+ * AZURIFY glass theme: a skin laid over the component library. Frosted translucent
+ * panels with blur, neon edges, a soft aurora background and a little depth on hover.
+ * Loaded last by every entry, so it wins over the per-page styles.
+ */
+
+:root {
+  --az-cyan: #19e5ff;
+  --az-teal: #00f0d0;
+  --az-blue: #2b7bff;
+  --az-violet: #8b5cf6;
+  --az-pink: #ff4fd8;
+  --az-glass: rgba(14, 24, 44, 0.58);
+  --az-glass-strong: rgba(9, 17, 34, 0.82);
+  --az-glass-soft: rgba(255, 255, 255, 0.045);
+  --az-line: rgba(120, 205, 255, 0.2);
+  --az-line-strong: rgba(25, 229, 255, 0.5);
+  --az-text: #e7f2ff;
+  --az-muted: #9fb3c8;
+  --az-shadow: 0 14px 44px rgba(0, 0, 0, 0.5);
+  --az-radius: 18px;
+}
+
+body.light {
+  --az-glass: rgba(255, 255, 255, 0.62);
+  --az-glass-strong: rgba(255, 255, 255, 0.86);
+  --az-glass-soft: rgba(20, 70, 140, 0.05);
+  --az-line: rgba(40, 110, 200, 0.22);
+  --az-line-strong: rgba(0, 130, 220, 0.55);
+  --az-text: #0b1f3a;
+  --az-muted: #4a6580;
+  --az-shadow: 0 14px 44px rgba(30, 80, 150, 0.18);
+}
+
+/* ---- background ---------------------------------------------------------- */
+
+html,
+body {
+  background: #050b16 !important;
+}
+
+body.light {
+  background: #dfeaf7 !important;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 700px at 88% -8%, rgba(25, 229, 255, 0.2), transparent 60%),
+    radial-gradient(900px 650px at -8% 22%, rgba(139, 92, 246, 0.18), transparent 55%),
+    radial-gradient(900px 700px at 55% 125%, rgba(0, 240, 208, 0.14), transparent 60%),
+    linear-gradient(180deg, #050b16, #071429);
+}
+
+body.light::before {
+  background:
+    radial-gradient(1100px 700px at 88% -8%, rgba(25, 180, 255, 0.28), transparent 60%),
+    radial-gradient(900px 650px at -8% 22%, rgba(139, 92, 246, 0.16), transparent 55%),
+    linear-gradient(180deg, #e8f1fb, #d6e6f7);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(120, 205, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 205, 255, 0.055) 1px, transparent 1px);
+  background-size: 52px 52px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 28%, #000 15%, transparent 72%);
+  mask-image: radial-gradient(ellipse at 50% 28%, #000 15%, transparent 72%);
+}
+
+.index-page,
+.clients-page,
+.inbounds-page,
+.xray-page,
+.settings-page,
+.nodes-page,
+.groups-page,
+.hosts-page,
+.api-docs-page,
+.sponsors-page,
+.ant-layout,
+.ant-layout-content {
+  background: transparent !important;
+}
+
+::selection {
+  background: rgba(25, 229, 255, 0.35);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(25, 229, 255, 0.35) transparent;
+}
+
+/* ---- glass surfaces ------------------------------------------------------ */
+
+body .ant-card,
+body .ant-modal-container,
+body .ant-drawer-section,
+body .ant-popover-container,
+body .ant-dropdown-menu,
+body .ant-select-dropdown,
+body .ant-picker-dropdown .ant-picker-panel-container,
+body .ant-message-notice-content,
+body .ant-notification-notice,
+body .ant-tooltip-container {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 42%), var(--az-glass) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--az-line) !important;
+  border-radius: var(--az-radius) !important;
+  box-shadow:
+    var(--az-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 0 1px rgba(25, 229, 255, 0.05) !important;
+  color: var(--az-text);
+}
+
+body .ant-modal-container,
+body .ant-drawer-section {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), transparent 40%), var(--az-glass-strong) !important;
+}
+
+body .ant-card {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+/* a thin neon line along the top edge of every card */
+body .ant-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--az-cyan), transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+body .ant-card:hover {
+  border-color: var(--az-line-strong) !important;
+  box-shadow:
+    0 18px 54px rgba(0, 0, 0, 0.55),
+    0 0 30px rgba(25, 229, 255, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+/* dashboard tiles lean toward the pointer a little */
+body .index-page .ant-card:hover {
+  transform: perspective(1100px) translateY(-4px) rotateX(2.2deg);
+}
+
+body .ant-card-head,
+body .ant-modal-header,
+body .ant-drawer-header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--az-line) !important;
+}
+
+body .ant-modal-footer,
+body .ant-drawer-footer {
+  border-top: 1px solid var(--az-line) !important;
+}
+
+body .ant-modal-title,
+body .ant-card-head-title {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  background: linear-gradient(135deg, var(--az-teal), var(--az-cyan) 60%, #8fc2ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body .ant-modal-mask,
+body .ant-drawer-mask {
+  background: rgba(2, 8, 20, 0.62) !important;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+@keyframes az-rise {
+  from {
+    opacity: 0;
+    transform: perspective(900px) translateY(26px) rotateX(11deg) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: perspective(900px) translateY(0) rotateX(0) scale(1);
+  }
+}
+
+body .ant-modal-container {
+  animation: az-rise 0.45s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+/* ---- controls ------------------------------------------------------------ */
+
+body .ant-input,
+body .ant-input-affix-wrapper,
+body .ant-input-number,
+body .ant-input-number-affix-wrapper,
+body .ant-select-outlined,
+body .ant-picker,
+body textarea.ant-input {
+  background: var(--az-glass-soft) !important;
+  border: 1px solid var(--az-line) !important;
+  border-radius: 12px !important;
+  color: var(--az-text);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+body .ant-input input,
+body .ant-input-number-input,
+body .ant-input-affix-wrapper > input.ant-input,
+body .ant-input-affix-wrapper .ant-input-outlined {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body .ant-input:hover,
+body .ant-input-affix-wrapper:hover,
+body .ant-input-number:hover,
+body .ant-select-outlined:hover,
+body .ant-picker:hover {
+  border-color: rgba(25, 229, 255, 0.45) !important;
+}
+
+body .ant-input:focus,
+body .ant-input-focused,
+body .ant-input-affix-wrapper:focus-within,
+body .ant-input-number-focused,
+body .ant-select-outlined.ant-select-focused,
+body .ant-picker-focused {
+  border-color: var(--az-cyan) !important;
+  box-shadow:
+    0 0 0 3px rgba(25, 229, 255, 0.18),
+    0 0 18px rgba(25, 229, 255, 0.2) !important;
+}
+
+body .ant-btn {
+  border-radius: 12px !important;
+  font-weight: 600;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    filter 0.25s ease;
+}
+
+body .ant-btn-default:not(:disabled):not(.ant-btn-dangerous),
+body .ant-btn-dashed:not(:disabled) {
+  background: var(--az-glass-soft) !important;
+  border-color: var(--az-line) !important;
+  color: var(--az-text);
+}
+
+body .ant-btn-default:not(:disabled):not(.ant-btn-dangerous):hover {
+  border-color: var(--az-cyan) !important;
+  color: var(--az-cyan) !important;
+  box-shadow: 0 0 20px rgba(25, 229, 255, 0.22);
+}
+
+body .ant-btn-primary:not(:disabled) {
+  background: linear-gradient(135deg, var(--az-teal), var(--az-cyan) 55%, var(--az-blue)) !important;
+  border: 0 !important;
+  color: #04121f !important;
+  box-shadow:
+    0 8px 24px rgba(25, 229, 255, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+}
+
+body .ant-btn-primary:not(:disabled):hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow:
+    0 12px 32px rgba(25, 229, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+body .ant-btn-primary:not(:disabled):active {
+  transform: translateY(0);
+}
+
+body .ant-switch.ant-switch-checked {
+  background: linear-gradient(135deg, var(--az-teal), var(--az-blue)) !important;
+  box-shadow: 0 0 14px rgba(25, 229, 255, 0.4);
+}
+
+body .ant-checkbox-checked .ant-checkbox-inner,
+body .ant-radio-checked .ant-radio-inner {
+  background: linear-gradient(135deg, var(--az-teal), var(--az-blue)) !important;
+  border-color: var(--az-cyan) !important;
+}
+
+body .ant-tag {
+  border-radius: 999px;
+  border-color: var(--az-line);
+}
+
+body .ant-tabs-ink-bar {
+  height: 3px !important;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--az-teal), var(--az-blue)) !important;
+  box-shadow: 0 0 14px rgba(25, 229, 255, 0.7);
+}
+
+body .ant-tabs-tab-active .ant-tabs-tab-btn {
+  text-shadow: 0 0 16px rgba(25, 229, 255, 0.55);
+}
+
+body .ant-progress-bg {
+  background: linear-gradient(90deg, var(--az-teal), var(--az-blue)) !important;
+  box-shadow: 0 0 12px rgba(25, 229, 255, 0.5);
+}
+
+/* ---- tables -------------------------------------------------------------- */
+
+body .ant-table-wrapper .ant-table,
+body .ant-table-wrapper .ant-table-container,
+body .ant-table-wrapper .ant-table-tbody > tr > td {
+  background: transparent !important;
+}
+
+body .ant-table-wrapper .ant-table-thead > tr > th {
+  background: rgba(25, 229, 255, 0.07) !important;
+  border-bottom: 1px solid var(--az-line) !important;
+  color: var(--az-muted);
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+body .ant-table-wrapper .ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(120, 205, 255, 0.08) !important;
+}
+
+body .ant-table-wrapper .ant-table-tbody > tr:hover > td {
+  background: linear-gradient(90deg, rgba(25, 229, 255, 0.1), rgba(43, 123, 255, 0.05)) !important;
+}
+
+/* ---- sidebar ------------------------------------------------------------- */
+
+body .ant-sidebar > .ant-layout-sider {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 30%), var(--az-glass-strong) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(150%);
+  border-right: 1px solid var(--az-line);
+  border-radius: 0 26px 26px 0;
+  box-shadow:
+    8px 0 44px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(25, 229, 255, 0.1) !important;
+}
+
+body .ant-sidebar .ant-layout-sider-children,
+body .ant-sidebar .ant-menu {
+  background: transparent !important;
+}
+
+body .ant-sidebar .sider-brand {
+  border-bottom: 1px solid var(--az-line);
+}
+
+body .ant-sidebar .brand-logo {
+  filter: drop-shadow(0 0 8px rgba(25, 229, 255, 0.7));
+}
+
+body .ant-sidebar .brand-text {
+  background: linear-gradient(135deg, var(--az-teal), var(--az-cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body .ant-sidebar .ant-menu-item {
+  border-radius: 14px;
+  transition:
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+body .ant-sidebar .ant-menu-item:hover {
+  background: rgba(25, 229, 255, 0.1) !important;
+  transform: translateX(2px);
+}
+
+body .ant-sidebar .ant-menu-item-selected {
+  background: linear-gradient(90deg, rgba(25, 229, 255, 0.26), rgba(43, 123, 255, 0.12)) !important;
+  box-shadow:
+    inset 3px 0 0 var(--az-cyan),
+    0 0 22px rgba(25, 229, 255, 0.2);
+  color: #c4f7ff !important;
+}
+
+body .ant-sidebar .ant-menu-item-selected .anticon {
+  color: var(--az-cyan);
+  filter: drop-shadow(0 0 6px rgba(25, 229, 255, 0.8));
+}
+
+/* ---- brand badge --------------------------------------------------------- */
+
+.az-brand-badge {
+  position: fixed;
+  right: 14px;
+  bottom: 12px;
+  z-index: 950;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--az-glass-strong);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--az-line);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.45),
+    0 0 18px rgba(25, 229, 255, 0.12);
+  color: var(--az-text);
+  font-size: 12px;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.az-brand-badge:hover {
+  transform: translateY(-2px);
+  border-color: var(--az-cyan);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.5),
+    0 0 26px rgba(25, 229, 255, 0.35);
+  color: var(--az-text);
+}
+
+.az-brand-badge b {
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--az-teal), var(--az-cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.az-brand-badge em {
+  font-style: normal;
+  color: var(--az-muted);
+}
+
+.az-brand-badge .az-brand-site {
+  color: var(--az-cyan);
+}
+
+@media (max-width: 640px) {
+  .az-brand-badge {
+    right: 8px;
+    bottom: 8px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .az-brand-badge .az-brand-site {
+    display: none;
+  }
+}
+
+/* ---- login and subscription pages ----------------------------------------- */
+
+body .login-card {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 45%), var(--az-glass-strong) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--az-line-strong) !important;
+  border-radius: 26px !important;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(25, 229, 255, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+  transform: perspective(1200px) rotateX(2deg);
+}

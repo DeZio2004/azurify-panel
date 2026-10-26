@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { message } from 'antd';
 import 'antd/dist/reset.css';
+import '@/styles/azurify-theme.css';
 
 import { setupHttp } from '@/api/http-init';
 import { applyDocumentTitle } from '@/utils';
@@ -9,6 +10,7 @@ import { AntdRootConfig } from '@/i18n/AntdRootConfig';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { QueryProvider } from '@/api/QueryProvider';
 import LoginPage from '@/pages/login/LoginPage';
+import { BrandBadge } from '@/components/brand/BrandBadge';
 
 setupHttp();
 applyDocumentTitle();
@@ -26,6 +28,7 @@ readyI18n().then(() => {
         <ThemeProvider>
           <QueryProvider>
             <LoginPage />
+            <BrandBadge />
           </QueryProvider>
         </ThemeProvider>
       </AntdRootConfig>,

@@ -293,7 +293,7 @@ func envOr(key, fallback string) string {
 }
 
 // portalApps lists the download links shown to clients. Each can be replaced from
-// /etc/default/x-ui (PORTAL_NPV_IOS_URL, PORTAL_NPV_ANDROID_URL,
+// /etc/default/azurify-ui (PORTAL_NPV_IOS_URL, PORTAL_NPV_ANDROID_URL,
 // PORTAL_NETMOD_ANDROID_URL, PORTAL_NETMOD_WINDOWS_URL); an empty value hides it.
 func portalApps() []portalApp {
 	apps := []portalApp{

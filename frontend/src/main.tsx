@@ -5,6 +5,7 @@ import 'antd/dist/reset.css';
 import '@/styles/utils.css';
 import '@/styles/page-shell.css';
 import '@/styles/page-cards.css';
+import '@/styles/azurify-theme.css';
 
 import { setupHttp } from '@/api/http-init';
 import { readyI18n } from '@/i18n/react';
@@ -12,6 +13,7 @@ import { AntdRootConfig } from '@/i18n/AntdRootConfig';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { QueryProvider } from '@/api/QueryProvider';
 import { router } from '@/routes';
+import { BrandBadge } from '@/components/brand/BrandBadge';
 
 // A stale tab keeps this entry's old chunk URLs after a deploy. Reload once per
 // panel base path and entry URL; the same bundle must not loop on a real outage.
@@ -54,6 +56,7 @@ readyI18n().then(() => {
         <ThemeProvider>
           <QueryProvider>
             <RouterProvider router={router} />
+            <BrandBadge />
           </QueryProvider>
         </ThemeProvider>
       </AntdRootConfig>,

@@ -5,7 +5,7 @@
 #
 #   bash <(curl -Ls https://raw.githubusercontent.com/DeZio2004/azurify-panel/main/install.sh)
 #
-# Re-running it updates the panel in place; the database in /etc/x-ui is kept.
+# Re-running it updates the panel in place; the database in /etc/azurify-ui is kept.
 # Options (environment): AZURIFY_REPO, AZURIFY_BRANCH, XUI_PORT.
 
 set -euo pipefail
@@ -14,9 +14,9 @@ AZURIFY_REPO="${AZURIFY_REPO:-DeZio2004/azurify-panel}"
 AZURIFY_BRANCH="${AZURIFY_BRANCH:-main}"
 XRAY_VERSION="${XRAY_VERSION:-v26.10.21}"
 
-INSTALL_DIR=/usr/local/x-ui
-DB_DIR=/etc/x-ui
-LOG_DIR=/var/log/x-ui
+INSTALL_DIR=/usr/local/azurify-ui
+DB_DIR=/etc/azurify-ui
+LOG_DIR=/var/log/azurify-ui
 SRC_DIR=/opt/azurify-src
 TOOLS_DIR=/opt/azurify-tools
 
@@ -50,6 +50,33 @@ info "Installing system packages..."
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y curl tar unzip ca-certificates openssl cron
+
+# --- move an install from before the rename (x-ui -> azurify-ui) ------------
+migrate_old_install() {
+    [[ -d /etc/x-ui || -d /usr/local/x-ui ]] || return 0
+    [[ ! -d /etc/azurify-ui ]] || return 0
+    info "Moving the previous x-ui install to azurify-ui (data is kept)..."
+    systemctl stop x-ui 2> /dev/null || true
+    systemctl disable x-ui 2> /dev/null || true
+    rm -f /etc/systemd/system/x-ui.service
+    rm -rf /etc/systemd/system/x-ui.service.d
+    if [[ -d /etc/x-ui ]]; then
+        mv /etc/x-ui /etc/azurify-ui
+        local f
+        for f in /etc/azurify-ui/x-ui.db*; do
+            [[ -e "$f" ]] && mv "$f" "${f/x-ui.db/azurify-ui.db}"
+        done
+    fi
+    if [[ -d /usr/local/x-ui ]]; then
+        mv /usr/local/x-ui /usr/local/azurify-ui
+        rm -f /usr/local/azurify-ui/x-ui /usr/local/azurify-ui/x-ui.sh
+    fi
+    [[ ! -f /etc/default/x-ui ]] || mv /etc/default/x-ui /etc/default/azurify-ui
+    [[ ! -d /var/log/x-ui ]] || mv /var/log/x-ui /var/log/azurify-ui
+    rm -f /usr/bin/x-ui
+    systemctl daemon-reload
+}
+migrate_old_install
 
 # --- prebuilt release (preferred: building needs about 2 GB of RAM) ---------
 # The GitHub Actions workflow publishes azurify-linux-<arch>.tar.gz to the "latest"
@@ -110,7 +137,7 @@ info "Building the web UI..."
 (cd frontend && npm ci --no-audit --no-fund --ignore-scripts && npm run build)
 
 info "Building the panel (this takes a few minutes)..."
-CGO_ENABLED=1 go build -p 1 -trimpath -ldflags "-s -w" -o "$SRC_DIR/x-ui" .
+CGO_ENABLED=1 go build -p 1 -trimpath -ldflags "-s -w" -o "$SRC_DIR/azurify-ui" .
 STAGE="$SRC_DIR"
 }
 
@@ -121,15 +148,15 @@ cd "$STAGE"
 
 # --- install --------------------------------------------------------------
 was_running=false
-if systemctl is-active --quiet x-ui 2> /dev/null; then
+if systemctl is-active --quiet azurify-ui 2> /dev/null; then
     was_running=true
-    systemctl stop x-ui
+    systemctl stop azurify-ui
 fi
 
 mkdir -p "$INSTALL_DIR/bin" "$DB_DIR" "$LOG_DIR"
-install -m 0755 "$STAGE/x-ui" "$INSTALL_DIR/x-ui"
-install -m 0755 "$STAGE/x-ui.sh" "$INSTALL_DIR/x-ui.sh"
-install -m 0755 "$STAGE/x-ui.sh" /usr/bin/x-ui
+install -m 0755 "$STAGE/azurify-ui" "$INSTALL_DIR/azurify-ui"
+install -m 0755 "$STAGE/azurify-ui.sh" "$INSTALL_DIR/azurify-ui.sh"
+install -m 0755 "$STAGE/azurify-ui.sh" /usr/bin/azurify-ui
 
 xray_bin="$INSTALL_DIR/bin/xray-linux-${GOARCH}"
 if [[ ! -x "$xray_bin" ]]; then
@@ -147,27 +174,27 @@ curl -fLRo geoip.dat https://github.com/Loyalsoldier/v2ray-rules-dat/releases/la
 curl -fLRo geosite.dat https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat || warn "geosite.dat download failed"
 cd "$STAGE"
 
-install -m 0644 "$STAGE/x-ui.service.debian" /etc/systemd/system/x-ui.service
+install -m 0644 "$STAGE/azurify-ui.service.debian" /etc/systemd/system/azurify-ui.service
 systemctl daemon-reload
-systemctl enable x-ui > /dev/null 2>&1
+systemctl enable azurify-ui > /dev/null 2>&1
 
 # --- first-run settings ---------------------------------------------------
-if [[ ! -f "$DB_DIR/x-ui.db" ]]; then
+if [[ ! -f "$DB_DIR/azurify-ui.db" ]]; then
     info "First install: generating credentials..."
     panel_user=$(openssl rand -hex 4)
     panel_pass=$(openssl rand -hex 8)
     panel_port="${XUI_PORT:-$((RANDOM % 40000 + 10000))}"
     panel_path=$(openssl rand -hex 6)
-    "$INSTALL_DIR/x-ui" setting -username "$panel_user" -password "$panel_pass" -port "$panel_port" -webBasePath "$panel_path" > /dev/null
+    "$INSTALL_DIR/azurify-ui" setting -username "$panel_user" -password "$panel_pass" -port "$panel_port" -webBasePath "$panel_path" > /dev/null
     server_ip=$(curl -fsL --max-time 8 https://api.ipify.org || hostname -I | awk '{print $1}')
     first_install=true
 else
     first_install=false
 fi
 
-systemctl start x-ui
+systemctl start azurify-ui
 sleep 2
-systemctl is-active --quiet x-ui || die "x-ui failed to start. Check: journalctl -u x-ui -n 50"
+systemctl is-active --quiet azurify-ui || die "azurify-ui failed to start. Check: journalctl -u azurify-ui -n 50"
 
 info "Done."
 if [[ "$first_install" == true ]]; then
@@ -179,10 +206,10 @@ if [[ "$first_install" == true ]]; then
     echo "  Client portal (give clients this link): http://${server_ip}:${panel_port}/clientportal/"
     echo
     warn "Save these now. Open the panel port in your firewall (ufw allow ${panel_port}/tcp)."
-    warn "Use a domain + SSL certificate (x-ui menu) so clients sign in over https."
+    warn "Use a domain + SSL certificate (azurify-ui menu) so clients sign in over https."
 else
     if [[ "$was_running" == true ]]; then info "Panel updated and restarted."; fi
 fi
-echo "  Manage with: x-ui"
-echo "  App download links shown to clients can be changed in /etc/default/x-ui:"
+echo "  Manage with: azurify-ui"
+echo "  App download links shown to clients can be changed in /etc/default/azurify-ui:"
 echo "    PORTAL_NETMOD_WINDOWS_URL, PORTAL_NETMOD_ANDROID_URL, PORTAL_NPV_IOS_URL, PORTAL_NPV_ANDROID_URL"

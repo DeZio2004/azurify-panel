@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// TestInstallCommandNamesThePanelBinary: /usr/bin/x-ui is the management shell
+// TestInstallCommandNamesThePanelBinary: /usr/bin/azurify-ui is the management shell
 // script, whose case list has no install-awg-kernel -- it just opens the menu.
 func TestInstallCommandNamesThePanelBinary(t *testing.T) {
 	resetReadinessCache()

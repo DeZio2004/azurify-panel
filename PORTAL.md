@@ -14,7 +14,7 @@ usage, connection links and QR codes, plus download links for the VPN apps.
   a "New password" button.
 - **Security:** wrong passwords are rate-limited (8 tries per 15 minutes per
   address and per username). Sessions last 12 hours and use a `SameSite=Strict`
-  HttpOnly cookie. Serve it over https (set a certificate in the `x-ui` menu), or the
+  HttpOnly cookie. Serve it over https (set a certificate in the `azurify-ui` menu), or the
   password travels in clear text.
 
 ## App download links
@@ -22,7 +22,7 @@ usage, connection links and QR codes, plus download links for the VPN apps.
 The portal lists NPV Tunnel (iPhone/iPad, Android) and NetMod (Android). A Windows
 NetMod link is not included because no official download page could be verified; set
 it yourself. Every link can be overridden, or hidden by leaving it empty, in
-`/etc/default/x-ui` (restart with `systemctl restart x-ui`):
+`/etc/default/azurify-ui` (restart with `systemctl restart azurify-ui`):
 
 ```
 PORTAL_NPV_IOS_URL=https://apps.apple.com/app/id1629465476

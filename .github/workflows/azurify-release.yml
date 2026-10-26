@@ -46,13 +46,13 @@ jobs:
       - name: Build the panel
         env:
           CGO_ENABLED: "1"
-        run: go build -trimpath -ldflags "-s -w" -o x-ui .
+        run: go build -trimpath -ldflags "-s -w" -o azurify-ui .
 
       - name: Package
         run: |
           mkdir azurify
-          cp x-ui x-ui.sh x-ui.service.debian azurify/
-          chmod +x azurify/x-ui azurify/x-ui.sh
+          cp azurify-ui azurify-ui.sh azurify-ui.service.debian azurify/
+          chmod +x azurify/azurify-ui azurify/azurify-ui.sh
           tar -czf azurify-linux-${{ matrix.arch }}.tar.gz azurify
 
       - uses: actions/upload-artifact@v4

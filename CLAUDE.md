@@ -24,14 +24,14 @@ file locations when it can answer in one hop.
   falls back to a process restart on older binaries. A client's panel-side
   traffic reset also calls `POST /secrets/{name}/reset-quota` so a renewed client
   is not re-blocked by the sidecar's quota counter.
-- Storage: SQLite by default (`/etc/x-ui/x-ui.db` on Linux; the executable dir on
+- Storage: SQLite by default (`/etc/azurify-ui/azurify-ui.db` on Linux; the executable dir on
   Windows), PostgreSQL optional (`XUI_DB_TYPE` / `XUI_DB_DSN`). The CGo SQLite
   driver (`mattn/go-sqlite3`) needs a C compiler — `CGO_ENABLED=0` builds fail.
 - Frontend: React 19 + Ant Design 6 + Vite 8 + TypeScript in `frontend/`,
   built into `internal/web/dist/` (gitignored) and embedded via `embed.FS`.
 
 ## Repo map
-- `main.go` — entry point + `x-ui` CLI (run, migrate, migrate-db, encrypt-tokens, setting, cert).
+- `main.go` — entry point + `azurify-ui` CLI (run, migrate, migrate-db, encrypt-tokens, setting, cert).
 - `internal/config/` — env parsing (XUI_DEBUG, XUI_LOG_LEVEL, XUI_LOG_FOLDER,
   XUI_BIN_FOLDER, XUI_SKIP_HSTS, XUI_PORT, XUI_DB_*).
 - `internal/database/` + `internal/database/model/` — GORM schema (~24 models;
@@ -155,7 +155,7 @@ file locations when it can answer in one hop.
 - Stdlib `testing` only (no testify). Table-driven, `t.Run` subtests,
   `t.Helper()` on helpers. Assert the exact value / typed error / emitted
   string, never just `err != nil`. Prefer real deps over mocks: throwaway DB via
-  `dbtest.InitDB(t, filepath.Join(t.TempDir(), "x-ui.db"))`
+  `dbtest.InitDB(t, filepath.Join(t.TempDir(), "azurify-ui.db"))`
   (`internal/database/dbtest`: copies a once-migrated template and registers
   `CloseDB` cleanup; a fresh `database.InitDB` costs ~7x more, ~850ms under
   `-race`); `httptest` for HTTP. Keep `database.InitDB` for reopening a file or

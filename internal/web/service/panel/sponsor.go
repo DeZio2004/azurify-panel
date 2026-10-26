@@ -31,7 +31,7 @@ type Sponsor struct {
 	Logo   string            `json:"logo,omitempty" example:"/sponsors/logo/acme.png"`
 	Title  map[string]string `json:"title"`
 	Text   map[string]string `json:"text"`
-	Link   string            `json:"link" example:"https://acme.example/?utm_source=3x-ui"`
+	Link   string            `json:"link" example:"https://acme.example/?utm_source=azurify"`
 }
 
 // SponsorList is the active sponsor set plus the contact link for new sponsors.
@@ -80,12 +80,19 @@ var (
 // GetSponsors returns the currently active sponsors. The remote file is cached, but the
 // window is re-checked on every call so a slot starts exactly at From and ends at Until.
 func (s *PanelService) GetSponsors() (*SponsorList, error) {
+	// AZURIFY has no sponsor slots, and the original feed belongs to another project.
+	if !sponsorsEnabled {
+		return &SponsorList{Sponsors: []Sponsor{}}, nil
+	}
 	raw, err := cachedSponsors()
 	if err != nil {
 		return nil, err
 	}
 	return activeSponsors(raw, sponsorNow()), nil
 }
+
+// sponsorsEnabled gates the remote sponsor feed; it stays off for AZURIFY builds.
+var sponsorsEnabled = false
 
 func cachedSponsors() (*SponsorList, error) {
 	sponsorsMu.Lock()

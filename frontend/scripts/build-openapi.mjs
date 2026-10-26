@@ -28,7 +28,7 @@ const SECURITY_SCHEMES = {
   cookieAuth: {
     type: 'apiKey',
     in: 'cookie',
-    name: '3x-ui',
+    name: 'azurify',
     description: 'Session cookie set by POST /login. Browser-only.',
   },
 };
@@ -339,10 +339,10 @@ export function buildSpec() {
   return {
     openapi: '3.0.3',
     info: {
-      title: '3X-UI Panel API',
+      title: 'AZURIFY Panel API',
       version: PANEL_VERSION,
       description:
-        'Programmatic interface to a 3X-UI panel. Authenticate either by logging in (cookie) or with a scoped API token from Settings → Security → API Token (Bearer). Token access is limited by its admin, monitor, node-sync, or node-admin scope; treat admin tokens like the panel password.',
+        'Programmatic interface to a AZURIFY panel. Authenticate either by logging in (cookie) or with a scoped API token from Settings → Security → API Token (Bearer). Token access is limited by its admin, monitor, node-sync, or node-admin scope; treat admin tokens like the panel password.',
     },
     servers: [{ url: '/', description: 'Current panel (basePath aware)' }],
     components: {
