@@ -30,7 +30,6 @@ die() { echo -e "${red}[azurify] $*${plain}" >&2; exit 1; }
 
 [[ $EUID -eq 0 ]] || die "Run as root (sudo -i)."
 command -v apt-get > /dev/null || die "This installer supports Ubuntu/Debian only."
-[[ "$AZURIFY_REPO" != DeZio2004/* ]] || die "Set AZURIFY_REPO (e.g. AZURIFY_REPO=you/azurify-panel) or edit this script."
 
 case "$(uname -m)" in
     x86_64 | amd64)
