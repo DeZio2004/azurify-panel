@@ -1,0 +1,81 @@
+name: AZURIFY release
+
+# Builds the panel on GitHub's runners (a VPS with 1 GB of RAM cannot compile it) and
+# publishes azurify-linux-<arch>.tar.gz to the rolling "latest" release that install.sh
+# downloads. Runs on every push to main and can be started by hand from the Actions tab.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: azurify-release
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Build the web UI
+        run: |
+          cd frontend
+          npm ci --no-audit --no-fund --ignore-scripts
+          npm run build
+
+      - name: Build the panel
+        env:
+          CGO_ENABLED: "1"
+        run: go build -trimpath -ldflags "-s -w" -o x-ui .
+
+      - name: Package
+        run: |
+          mkdir azurify
+          cp x-ui x-ui.sh x-ui.service.debian azurify/
+          chmod +x azurify/x-ui azurify/x-ui.sh
+          tar -czf azurify-linux-${{ matrix.arch }}.tar.gz azurify
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: azurify-linux-${{ matrix.arch }}
+          path: azurify-linux-${{ matrix.arch }}.tar.gz
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish the latest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest dist/*.tar.gz \
+            --target "${{ github.sha }}" \
+            --title "AZURIFY latest" \
+            --notes "Automatic build of ${{ github.sha }}."

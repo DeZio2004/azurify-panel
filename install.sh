@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # AZURIFY panel installer for Ubuntu/Debian (amd64, arm64).
-# Builds the panel from source on this machine, so no release archive is needed.
+# Installs the prebuilt panel from the repo's "latest" release; falls back to building
+# from source on this machine when no release exists (that needs about 2 GB of RAM).
 #
 #   bash <(curl -Ls https://raw.githubusercontent.com/DeZio2004/azurify-panel/main/install.sh)
 #
@@ -48,8 +49,23 @@ esac
 info "Installing system packages..."
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
-apt-get install -y curl wget git tar xz-utils unzip ca-certificates build-essential openssl cron
+apt-get install -y curl tar unzip ca-certificates openssl cron
 
+# --- prebuilt release (preferred: building needs about 2 GB of RAM) ---------
+# The GitHub Actions workflow publishes azurify-linux-<arch>.tar.gz to the "latest"
+# release. Set AZURIFY_BUILD=source to compile on this machine instead.
+STAGE=""
+RELEASE_URL="https://github.com/$AZURIFY_REPO/releases/download/latest/azurify-linux-${GOARCH}.tar.gz"
+if [[ "${AZURIFY_BUILD:-auto}" != "source" ]] && curl -fsIL -o /dev/null "$RELEASE_URL"; then
+    info "Downloading the prebuilt panel..."
+    STAGE=$(mktemp -d)
+    curl -fL "$RELEASE_URL" | tar -xz -C "$STAGE" --strip-components=1
+else
+    warn "No prebuilt release found; building from source (needs about 2 GB of RAM or swap)."
+fi
+
+build_from_source() {
+apt-get install -y wget git xz-utils build-essential
 mkdir -p "$TOOLS_DIR"
 
 # --- source ---------------------------------------------------------------
@@ -92,7 +108,14 @@ info "Building the web UI..."
 (cd frontend && npm ci --no-audit --no-fund --ignore-scripts && npm run build)
 
 info "Building the panel (this takes a few minutes)..."
-CGO_ENABLED=1 go build -trimpath -ldflags "-s -w" -o "$SRC_DIR/x-ui-build" .
+CGO_ENABLED=1 go build -p 1 -trimpath -ldflags "-s -w" -o "$SRC_DIR/x-ui" .
+STAGE="$SRC_DIR"
+}
+
+if [[ -z "$STAGE" ]]; then
+    build_from_source
+fi
+cd "$STAGE"
 
 # --- install --------------------------------------------------------------
 was_running=false
@@ -102,9 +125,9 @@ if systemctl is-active --quiet x-ui 2> /dev/null; then
 fi
 
 mkdir -p "$INSTALL_DIR/bin" "$DB_DIR" "$LOG_DIR"
-install -m 0755 "$SRC_DIR/x-ui-build" "$INSTALL_DIR/x-ui"
-install -m 0755 x-ui.sh "$INSTALL_DIR/x-ui.sh"
-install -m 0755 x-ui.sh /usr/bin/x-ui
+install -m 0755 "$STAGE/x-ui" "$INSTALL_DIR/x-ui"
+install -m 0755 "$STAGE/x-ui.sh" "$INSTALL_DIR/x-ui.sh"
+install -m 0755 "$STAGE/x-ui.sh" /usr/bin/x-ui
 
 xray_bin="$INSTALL_DIR/bin/xray-linux-${GOARCH}"
 if [[ ! -x "$xray_bin" ]]; then
@@ -120,9 +143,9 @@ info "Downloading geo data..."
 cd "$INSTALL_DIR/bin"
 curl -fLRo geoip.dat https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat || warn "geoip.dat download failed"
 curl -fLRo geosite.dat https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat || warn "geosite.dat download failed"
-cd "$SRC_DIR"
+cd "$STAGE"
 
-install -m 0644 x-ui.service.debian /etc/systemd/system/x-ui.service
+install -m 0644 "$STAGE/x-ui.service.debian" /etc/systemd/system/x-ui.service
 systemctl daemon-reload
 systemctl enable x-ui > /dev/null 2>&1
 
