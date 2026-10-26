@@ -640,6 +640,12 @@ export default function ClientInfoModal({
                     </Tooltip>
                   </div>
                 ))}
+                <div className="link-row-note">
+                  {t(
+                    'pages.clients.portal.note',
+                    "The client can also sign in with the password on this client's Credentials tab.",
+                  )}
+                </div>
                 <Button
                   size="small"
                   icon={<ReloadOutlined aria-hidden />}

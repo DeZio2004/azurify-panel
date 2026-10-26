@@ -117,13 +117,20 @@ func (s *PortalService) Verify(email, password string) bool {
 	if email == "" || password == "" {
 		return false
 	}
+	record, err := s.clientService.GetRecordByEmail(nil, email)
+	if err != nil || record == nil {
+		return false
+	}
+	// The password shown on the client's Credentials tab works too, so a client
+	// can use the login the admin already sees; it grants nothing extra because
+	// the links the portal shows contain that same secret.
+	matched := record.Password != "" &&
+		subtle.ConstantTimeCompare([]byte(record.Password), []byte(password)) == 1
 	var cred model.PortalCredential
-	if err := database.GetDB().Where("email = ?", email).First(&cred).Error; err != nil {
-		return false
+	if err := database.GetDB().Where("email = ?", email).First(&cred).Error; err == nil {
+		if subtle.ConstantTimeCompare([]byte(cred.Password), []byte(password)) == 1 {
+			matched = true
+		}
 	}
-	if subtle.ConstantTimeCompare([]byte(cred.Password), []byte(password)) != 1 {
-		return false
-	}
-	_, err := s.clientService.GetRecordByEmail(nil, email)
-	return err == nil
+	return matched
 }
