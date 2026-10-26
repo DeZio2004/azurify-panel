@@ -179,14 +179,26 @@ body .ant-drawer-footer {
   border-top: 1px solid var(--az-line) !important;
 }
 
-body .ant-modal-title,
-body .ant-card-head-title {
+body .ant-modal-title {
   font-weight: 700;
   letter-spacing: 0.4px;
   background: linear-gradient(135deg, var(--az-teal), var(--az-cyan) 60%, #8fc2ff);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* card titles keep solid text: panels put buttons inside them, and a transparent
+   text fill would be inherited and hide every label */
+body .ant-card-head-title {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-shadow: 0 0 16px rgba(25, 229, 255, 0.35);
+}
+
+body .ant-btn,
+body .ant-btn * {
+  -webkit-text-fill-color: currentColor;
 }
 
 body .ant-modal-mask,
