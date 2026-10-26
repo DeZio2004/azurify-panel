@@ -58,7 +58,9 @@ STAGE=""
 RELEASE_URL="https://github.com/$AZURIFY_REPO/releases/download/latest/azurify-linux-${GOARCH}.tar.gz"
 if [[ "${AZURIFY_BUILD:-auto}" != "source" ]] && curl -fsIL -o /dev/null "$RELEASE_URL"; then
     info "Downloading the prebuilt panel..."
-    STAGE=$(mktemp -d)
+    # /var/tmp is on disk; /tmp can be a small RAM-backed folder.
+    mkdir -p /var/tmp
+    STAGE=$(mktemp -d -p /var/tmp azurify.XXXXXX)
     curl -fL "$RELEASE_URL" | tar -xz -C "$STAGE" --strip-components=1
 else
     warn "No prebuilt release found; building from source (needs about 2 GB of RAM or swap)."
@@ -132,7 +134,7 @@ install -m 0755 "$STAGE/x-ui.sh" /usr/bin/x-ui
 xray_bin="$INSTALL_DIR/bin/xray-linux-${GOARCH}"
 if [[ ! -x "$xray_bin" ]]; then
     info "Downloading Xray-core $XRAY_VERSION..."
-    tmp=$(mktemp -d)
+    tmp=$(mktemp -d -p /var/tmp azurify.XXXXXX)
     curl -fL -o "$tmp/xray.zip" "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VERSION}/Xray-linux-${XRAY_ZIP}.zip"
     unzip -q -o "$tmp/xray.zip" xray -d "$tmp"
     install -m 0755 "$tmp/xray" "$xray_bin"
